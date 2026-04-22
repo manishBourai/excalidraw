@@ -9,13 +9,18 @@
   },
   "dependencies": {
     "@repo/typescript-config": "workspace:*",
-    "socket.io": "^4.8.3"
+    "@types/jsonwebtoken": "^9.0.10",
+    "jsonwebtoken": "^9.0.3",
+    "socket.io": "^4.8.3",
+    "@repo/database":"workspace:*"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "devDependencies": {
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "@repo/backend-common": "workspace:*",
+     "@repo/common":"workspace:*"
   }
 }
