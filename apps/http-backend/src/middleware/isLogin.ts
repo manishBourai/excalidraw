@@ -1,18 +1,20 @@
+import { JWT_SECRET } from "@repo/backend-common/jwt-config"
 import { prisma } from "@repo/database/db"
 import { NextFunction, Request, Response } from "express"
 import jwt from "jsonwebtoken"
 
 async function isLogin(req:Request,res:Response , next:NextFunction) {
      try {
-     const token = req.cookies.token
+     const {Token} = req.cookies
+// console.log("token: ",req.cookies);
 
-     if(!token){
+     if(!Token){
      
     return  res.status(401).clearCookie("token").json({message:"not login"})
       // throw new apiError(401,"not login")
      }
      
-   const refreshToken= jwt.verify(token,"token")
+   const refreshToken= jwt.verify(Token,JWT_SECRET)
    if (!refreshToken|| typeof(refreshToken)=="string" ) {
     return res.status(401).clearCookie("token").json({message:"token not vailde"})
    }
@@ -36,3 +38,4 @@ async function isLogin(req:Request,res:Response , next:NextFunction) {
    // throw new apiError(401,error.message)
    }
 }
+export default isLogin

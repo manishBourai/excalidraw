@@ -3,7 +3,6 @@
     "compilerOptions": {
         "rootDir": "./src",
         "outDir": "./dist",
-        "module": "ES2022",
-        "moduleResolution": "bundler"
+       
     }
 }

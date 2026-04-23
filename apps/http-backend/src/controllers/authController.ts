@@ -46,12 +46,12 @@ export async function signup(req: Request, res: Response) {
     });
   }
 
-//   const existingUser = await prisma.user.findFirst({ where: { email } });
-//   if (existingUser) {
-//     return res.status(400).json({
-//       message: "User already exists",
-//     });
-//   }
+  const existingUser = await prisma.user.findFirst({ where: { email } });
+  if (existingUser) {
+    return res.status(400).json({
+      message: "User already exists",
+    });
+  }
 
   const hashPassword = await bcrypt.hash(password, 10);
   const user = await prisma.user.create({
