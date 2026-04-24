@@ -17,7 +17,12 @@ interface User {
 let users: User[] = [];
 let AllUsers:[]=[]
 
-const io = new Server(app);
+const io = new Server(app, {
+  cors: {
+    origin: true,
+    credentials: true,
+  },
+});
 io.on("connection", (socket: Socket) => {
   const { token,name } = socket.handshake.query;
   console.log("a user connected with token", token);
@@ -25,13 +30,12 @@ io.on("connection", (socket: Socket) => {
     socket.disconnect();
   }
   const decodedToken = jwt.verify(token as string, JWT_SECRET);
-  if (!decodedToken || !(decodedToken as JwtPayload).username) {
+  if (!decodedToken || !(decodedToken as JwtPayload).id) {
     socket.disconnect();
   }
 
   users.push({
-    //@ts-ignore
-    user: decodedToken.data.id,
+    user: (decodedToken as JwtPayload).id as string,
     socket,
   });
   if (!name) {
@@ -57,7 +61,7 @@ io.on("connection", (socket: Socket) => {
     cb({message:`${roomId} room left`})
   })
   socket.on("disconnect",()=>{
-    users=users.filter(x=>x.socket==socket)
+    users=users.filter(x=>x.socket!==socket)
     // AllUsers=AllUsers.filter(x=>x.socket==socket)
     
   })

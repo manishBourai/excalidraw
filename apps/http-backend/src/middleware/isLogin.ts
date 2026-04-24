@@ -6,15 +6,18 @@ import jwt from "jsonwebtoken"
 async function isLogin(req:Request,res:Response , next:NextFunction) {
      try {
      const {Token} = req.cookies
+     const bearerToken = req.headers.authorization?.startsWith("Bearer ")
+      ? req.headers.authorization.slice("Bearer ".length)
+      : undefined;
 // console.log("token: ",req.cookies);
 
-     if(!Token){
+     if(!Token && !bearerToken){
      
     return  res.status(401).clearCookie("token").json({message:"not login"})
       // throw new apiError(401,"not login")
      }
      
-   const refreshToken= jwt.verify(Token,JWT_SECRET)
+   const refreshToken= jwt.verify(Token ?? bearerToken,JWT_SECRET)
    if (!refreshToken|| typeof(refreshToken)=="string" ) {
     return res.status(401).clearCookie("token").json({message:"token not vailde"})
    }
