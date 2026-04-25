@@ -14,6 +14,7 @@ export function useAuthSession() {
     const storedSession = getStoredSession();
 
     if (!storedSession) {
+      setLoading(false);
       router.replace("/signin");
       return;
     }

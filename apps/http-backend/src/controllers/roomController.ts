@@ -128,18 +128,25 @@ export async function deleteRoom(req:Request,res:Response) {
         return res.status(400).json({ message: "invalid room" });
     }
 
-    const room = await prisma.room.findFirst({ where: { roomId } });
-    if (!room) {
-        return res.status(404).json({ message: "room not found" });
-    }
-    //@ts-ignore
-    if (room.adminId !== req.user.id) {
-        return res.status(403).json({ message: "you are not admin of this room" });
-    }
+    try {
+        const room = await prisma.room.findFirst({ where: { roomId } });
+        if (!room) {
+            return res.status(404).json({ message: "room not found" });
+        }
+        //@ts-ignore
+        if (room.adminId !== req.user.id) {
+            return res.status(403).json({ message: "you are not admin of this room" });
+        }
 
-    await prisma.room.delete({ where: { id: room.id } });
-    
-    return res.status(200).json({
-        message: "room deleted"
-    });
+        await prisma.$transaction([
+            prisma.chatHistory.deleteMany({ where: { roomId: room.id } }),
+            prisma.room.delete({ where: { id: room.id } })
+        ]);
+        
+        return res.status(200).json({
+            message: "room deleted"
+        });
+    } catch (error) {
+        return res.status(500).json({ message: "something went wrong", error:error instanceof Error ? error.message : String(error) });
+    }
 }

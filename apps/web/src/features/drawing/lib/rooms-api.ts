@@ -21,6 +21,16 @@ export function getMyRooms(token: string) {
   });
 }
 
+export function deleteRoom(roomId: string, token: string) {
+  return httpRequest<ApiResponse<null>>(
+    `/api/room/${encodeURIComponent(roomId)}`,
+    {
+      method: "DELETE",
+      token,
+    },
+  );
+}
+
 export function saveCanvasSnapshot(
   roomId: string,
   snapshot: CanvasSnapshot,
