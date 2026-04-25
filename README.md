@@ -1,159 +1,179 @@
-# Turborepo starter
+# Excalidraw Clone Monorepo
 
-This Turborepo starter is maintained by the Turborepo core team.
+A collaborative drawing application built with a Turborepo monorepo.
 
-## Using this example
+## Stack
 
-Run the following command:
+- `apps/web`: Next.js 16, App Router, Tailwind CSS, local shadcn-style UI, Fabric.js
+- `apps/http-backend`: Express + Prisma REST API
+- `apps/ws-backend`: Socket.IO realtime server
+- `packages/dataBase`: Prisma schema and database client
 
-```sh
-npx create-turbo@latest
+## Features
+
+- Home page with Framer Motion hero
+- Sign in and sign up flow
+- Authenticated redirect from `/` to `/draw`
+- Rooms dashboard
+  - create room
+  - join room
+  - delete owned room
+  - owner/shared room labels
+- Drawing workspace at `/draw/[roomId]`
+- Fabric.js tools
+  - select
+  - rectangle
+  - circle
+  - free draw
+- Realtime canvas sync with WebSocket
+- Canvas persistence with HTTP API
+- Light and dark mode
+
+## App Flow
+
+1. User lands on `/`
+2. If already authenticated, they are redirected to `/draw`
+3. User signs in or signs up
+4. User sees the rooms dashboard
+5. User creates a room or joins an existing room
+6. User draws inside `/draw/[roomId]`
+
+## Monorepo Structure
+
+```text
+apps/
+  web/
+  http-backend/
+  ws-backend/
+
+packages/
+  ui/
+  common/
+  backend-common/
+  dataBase/
+  eslint-config/
+  typescript-config/
 ```
 
-## What's inside?
+## Routes
 
-This Turborepo includes the following packages/apps:
+### Frontend
 
-### Apps and Packages
+- `/` home page
+- `/signin`
+- `/signup`
+- `/draw` rooms dashboard
+- `/draw/[roomId]` drawing workspace
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+### HTTP Backend
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+- `POST /api/auth/signup`
+- `POST /api/auth/signin`
+- `POST /api/room`
+- `GET /api/room/my`
+- `GET /api/room/:roomId/canvas`
+- `PUT /api/room/:roomId/canvas`
+- `DELETE /api/room/:roomId`
 
-### Utilities
+### WebSocket Events
 
-This Turborepo has some additional tools already setup for you:
+- `joinRoom`
+- `chat`
+- `leave`
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+The app currently uses the `chat` event to broadcast canvas snapshot messages.
 
-### Build
+## Getting Started
 
-To build all apps and packages, run the following command:
+### 1. Install dependencies
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo build
+```bash
+pnpm install
 ```
 
-Without global `turbo`, use your package manager:
+### 2. Configure environment
 
-```sh
-cd my-turborepo
-npx turbo build
-pnpm dlx turbo build
-pnpm exec turbo build
+Make sure your database and backend environment variables are set.
+
+Common places to check:
+
+- `apps/http-backend/.env`
+- Prisma/database config under `packages/dataBase`
+
+### 3. Run development servers
+
+Run everything:
+
+```bash
+pnpm dev
 ```
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+Or run each service separately:
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo build --filter=docs
+```bash
+pnpm dev:web
+pnpm dev:http
+pnpm dev:ws
 ```
 
-Without global `turbo`:
+## Useful Scripts
 
-```sh
-npx turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
+```bash
+pnpm dev
+pnpm build
+pnpm lint
+pnpm check-types
+pnpm format
 ```
 
-### Develop
+Turbo variants are still available:
 
-To develop all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo dev
+```bash
+pnpm dev:turbo
+pnpm build:turbo
+pnpm lint:turbo
+pnpm check-types:turbo
 ```
 
-Without global `turbo`, use your package manager:
+## Ports
 
-```sh
-cd my-turborepo
-npx turbo dev
-pnpm exec turbo dev
-pnpm exec turbo dev
+- Web: `http://localhost:3000`
+- HTTP backend: `http://localhost:3002`
+- WS backend: `http://localhost:8080`
+
+## Notes
+
+- If backend routes change, restart the HTTP backend so `dist` is rebuilt.
+- Room deletion removes dependent `ChatHistory` rows before deleting the room.
+- The rooms dashboard marks rooms as:
+  - `Owner`: created by the current user
+  - `Shared`: previously worked in by the current user
+
+## Current Frontend Architecture
+
+### UI
+
+Reusable UI primitives live under:
+
+- `apps/web/src/components/ui`
+
+### Auth
+
+- session storage in localStorage
+- route protection for dashboard and drawing pages
+
+### Drawing
+
+- Fabric.js canvas controller isolated from React UI
+- Zustand store for drawing session/tool state
+- REST and WebSocket logic separated in dedicated client modules
+
+## Verification
+
+Typical checks:
+
+```bash
+pnpm check-types
+pnpm lint
+pnpm build
 ```
-
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo dev --filter=web
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo login
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo login
-pnpm exec turbo login
-pnpm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo link
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo link
-pnpm exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
