@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.ts",
-  "exports":{
-    "./jwt-config":"./src/index.ts"
+  "exports": {
+    "./jwt-config": "./src/index.ts"
   },
   "type": "module",
   "scripts": {
@@ -17,5 +17,8 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "ioredis": "^5.10.1"
+  }
 }

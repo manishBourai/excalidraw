@@ -1,7 +1,9 @@
-import express, { Response } from "express";
+import express, { Request, Response } from "express";
 import authRoute from "./routes/authRoute";
 import roomRoute from "./routes/roomRoute";
 import cookieParser from "cookie-parser";
+import rateLimiter from "./util/rateLimite";
+
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3002;
@@ -27,6 +29,7 @@ app.use((req, res, next) => {
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
+app.use(rateLimiter)
 
 app.use("/api/auth", authRoute);
 app.use("/api/room", roomRoute);
